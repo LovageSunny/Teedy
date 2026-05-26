@@ -8,8 +8,6 @@ COPY docs-core/pom.xml ./docs-core/pom.xml
 COPY docs-web-common/pom.xml ./docs-web-common/pom.xml
 COPY docs-web/pom.xml ./docs-web/pom.xml
 
-RUN mvn -B dependency:go-offline -DskipTests
-
 COPY docs-core ./docs-core
 COPY docs-web-common ./docs-web-common
 COPY docs-web ./docs-web
