@@ -21,8 +21,8 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
           script {
             runCommand(
-              'docker build --pull -t "$DOCKER_NAMESPACE/$DOCKER_REPOSITORY:$DOCKER_TAG" .',
-              'docker build --pull -t "%DOCKER_NAMESPACE%/%DOCKER_REPOSITORY%:%DOCKER_TAG%" .'
+              'docker build --pull -t "$DOCKER_NAMESPACE/$DOCKER_REPOSITORY:$BUILD_NUMBER" -t "$DOCKER_NAMESPACE/$DOCKER_REPOSITORY:$DOCKER_TAG" .',
+              'docker build --pull -t "%DOCKER_NAMESPACE%/%DOCKER_REPOSITORY%:%BUILD_NUMBER%" -t "%DOCKER_NAMESPACE%/%DOCKER_REPOSITORY%:%DOCKER_TAG%" .'
             )
           }
         }
