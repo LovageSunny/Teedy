@@ -61,6 +61,11 @@
     <org.apache.maven.plugins.maven-jar-plugin.version>3.3.0</org.apache.maven.plugins.maven-jar-plugin.version>
     <org.apache.maven.plugins.maven-war-plugin.version>3.3.2</org.apache.maven.plugins.maven-war-plugin.version>
     <org.apache.maven.plugins.maven-surefire-plugin.version>3.0.0</org.apache.maven.plugins.maven-surefire-plugin.version>
+    <org.apache.maven.plugins.maven-surefire-report-plugin.version>3.0.0</org.apache.maven.plugins.maven-surefire-report-plugin.version>
+    <org.apache.maven.plugins.maven-site-plugin.version>3.12.1</org.apache.maven.plugins.maven-site-plugin.version>
+    <org.apache.maven.plugins.maven-project-info-reports-plugin.version>3.4.1</org.apache.maven.plugins.maven-project-info-reports-plugin.version>
+    <org.apache.maven.plugins.maven-pmd-plugin.version>3.21.0</org.apache.maven.plugins.maven-pmd-plugin.version>
+    <org.jacoco.jacoco-maven-plugin.version>0.8.11</org.jacoco.jacoco-maven-plugin.version>
     <org.eclipse.jetty.jetty-maven-plugin.version>11.0.20</org.eclipse.jetty.jetty-maven-plugin.version>
   </properties>
 
@@ -115,11 +120,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.21.0</version>
+        <version>${org.apache.maven.plugins.maven-pmd-plugin.version}</version>
         <configuration>
           <!-- 改用 project.basedir 相对路径，多模块下更稳定 -->
           <rulesets>
-            <ruleset>${project.parent.basedir}/customize-rules.xml</ruleset>
+            <ruleset>${maven.multiModuleProjectDirectory}/customize-rules.xml</ruleset>
           </rulesets>
           <printFailingErrors>true</printFailingErrors>
           <!-- 关键：不失败构建，仅警告（可选，方便调试） -->
@@ -144,38 +149,16 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.12.1</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.21.0</version> <!-- 建议使用较新版本 -->
-        <configuration>
-          <!-- 核心：指向你刚才创建的文件 -->
-          <rulesets>
-            <ruleset>${project.basedir}/customize-rules.xml</ruleset>
-          </rulesets>
-          <printFailingErrors>true</printFailingErrors>
-          <!-- 即使发现问题也不让编译失败，方便查看报告 -->
-          <failOnViolation>false</failOnViolation> 
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-              <goal>cpd-check</goal>
-            </goals>
-          </execution>
-        </executions>
+        <version>${org.apache.maven.plugins.maven-site-plugin.version}</version>
       </plugin>
 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.11</version> <!-- 建议使用较新版本 -->
+        <version>${org.jacoco.jacoco-maven-plugin.version}</version>
         <executions>
           <execution>
+            <id>prepare-agent</id>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
@@ -185,7 +168,15 @@
             <id>report</id>
             <phase>test</phase>
             <goals>
-                <goal>report</goal>
+              <goal>report</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>report-aggregate</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report-aggregate</goal>
             </goals>
           </execution>
         </executions>
@@ -578,33 +569,42 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
-        <version>3.12.1</version>
+        <version>${org.apache.maven.plugins.maven-site-plugin.version}</version>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>${org.apache.maven.plugins.maven-project-info-reports-plugin.version}</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>${org.apache.maven.plugins.maven-surefire-report-plugin.version}</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${org.jacoco.jacoco-maven-plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+              <report>report-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.21.0</version>
+        <version>${org.apache.maven.plugins.maven-pmd-plugin.version}</version>
         <configuration>
           <rulesets>
-              <ruleset>${project.basedir}/customize-rules.xml</ruleset>
-          </rulesets>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <version>3.21.0</version>
-        <configuration>
-          <rulesets>
-            <ruleset>${project.basedir}/customize-rules.xml</ruleset>
+            <ruleset>${maven.multiModuleProjectDirectory}/customize-rules.xml</ruleset>
           </rulesets>
         </configuration>
       </plugin>
