@@ -8,7 +8,7 @@ pipeline {
     environment {
       MAVEN_OPTS = '-Xmx1024m'
       TESSDATA_PREFIX = 'C:\\Users\\19236\\tessdata'
-      PATH+TESSERACT = 'C:\\Program Files\\Tesseract-OCR'
+      TESSERACT_HOME = 'C:\\Program Files\\Tesseract-OCR'
     }
 
     stages {
@@ -78,6 +78,6 @@ pipeline {
     if (isUnix()) {
       sh command
     } else {
-      bat command
+      bat "set \"PATH=${env.TESSERACT_HOME};%PATH%\" && ${command}"
     }
   }
