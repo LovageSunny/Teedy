@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.4
-
 FROM docker.io/library/maven:3.8.7-eclipse-temurin-11 AS builder
 
 WORKDIR /build
@@ -10,13 +8,13 @@ COPY docs-core/pom.xml ./docs-core/pom.xml
 COPY docs-web-common/pom.xml ./docs-web-common/pom.xml
 COPY docs-web/pom.xml ./docs-web/pom.xml
 
-RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:go-offline -DskipTests
+RUN mvn -B dependency:go-offline -DskipTests
 
 COPY docs-core ./docs-core
 COPY docs-web-common ./docs-web-common
 COPY docs-web ./docs-web
 
-RUN --mount=type=cache,target=/root/.m2 mvn -B clean install -DskipTests
+RUN mvn -B clean install -DskipTests
 
 FROM docker.io/library/tomcat:10.1-jre11-temurin
 
