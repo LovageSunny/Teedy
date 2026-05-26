@@ -13,11 +13,13 @@ Teedy is an open source, lightweight document management system for individuals 
 
 The root `Dockerfile` and root `Jenkinsfile` are configured for Practice 10.
 
+The runtime image uses Tomcat 10.0.x because this Teedy version still depends on a Servlet API method that is not available in Tomcat 10.1. Using Tomcat 10.1 can make the page load but leave the UI stuck on the loading screen because backend REST calls fail.
+
 Before running the Jenkins job, make sure Docker can pull the required base images from the same environment that starts Jenkins:
 
 ```bat
 docker pull docker.io/library/maven:3.8.7-eclipse-temurin-11
-docker pull docker.io/library/tomcat:10.1-jre11-temurin
+docker pull docker.io/library/tomcat:10.0.27-jdk11-temurin
 java -jar jenkins.war --httpPort=8080
 ```
 
