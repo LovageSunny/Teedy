@@ -58,6 +58,18 @@ kubectl get nodes
 
 If Jenkins cannot find `minikube`, add the folder containing `minikube.exe` to the same `PATH` used to start Jenkins. The Practice 11 Jenkinsfile can still verify an already-running cluster with `kubectl get nodes`.
 
+On Windows with the Docker driver, `minikube service teedy-service --url` starts a tunnel and keeps the terminal open. Do not use that command inside Jenkins for final verification. Use this in a separate terminal instead:
+
+```bat
+kubectl port-forward service/teedy-service 18080:8080
+```
+
+Then open:
+
+```text
+http://127.0.0.1:18080/
+```
+
 The Jenkins job should use:
 
 ```text

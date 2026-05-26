@@ -71,13 +71,9 @@ pipeline {
               echo Services:
               kubectl get services teedy-service
               echo.
-              echo Teedy URL:
-              where minikube >nul 2>nul
-              if %ERRORLEVEL% EQU 0 (
-                minikube service teedy-service --url
-              ) else (
-                kubectl get service teedy-service
-              )
+              echo Teedy access command for Windows Docker driver:
+              echo kubectl port-forward service/teedy-service 18080:8080
+              echo Open http://127.0.0.1:18080/ while the port-forward command is running.
             '''
           )
         }
