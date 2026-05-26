@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+target
+**/target
+docs
+docs-android
+docs-importer
+*.zip
+*.log
