@@ -1,83 +1,57 @@
 pipeline {
-    agent any
+  agent any
 
-    options {
-      timeout(time: 60, unit: 'MINUTES')
+  environment {
+    DOCKER_REPOSITORY = 'teedy'
+    DOCKER_TAG = 'v1.0'
+  }
+
+  stages {
+    stage('Package') {
+      steps {
+        sh 'mvn clean install -DskipTests'
+      }
     }
 
-    environment {
-      MAVEN_OPTS = '-Xmx1024m'
-      TESSDATA_PREFIX = 'C:\\Users\\19236\\tessdata'
-      TESSERACT_HOME = 'C:\\Program Files\\Tesseract-OCR'
-    }
-
-    stages {
-      stage('Environment') {
-        steps {
-          script {
-            runCommand('java -version')
-            runCommand('mvn -version')
-          }
-        }
-      }
-
-      stage('Build & Test') {
-        steps {
-          script {
-            runCommand('mvn -B clean verify')
-          }
-        }
-        post {
-          always {
-            junit allowEmptyResults: false, testResults: '**/target/surefire-reports/TEST-*.xml'
-          }
-        }
-      }
-
-      stage('PMD') {
-        steps {
-          script {
-            runCommand('mvn -B pmd:pmd')
-          }
-        }
-      }
-
-      stage('JaCoCo') {
-        steps {
-          script {
-            runCommand('mvn -B jacoco:report')
-          }
-        }
-      }
-
-      stage('Javadoc') {
-        steps {
-          script {
-            runCommand('mvn -B javadoc:javadoc -Dmaven.javadoc.failOnError=false -Ddoclint=none')
-          }
-        }
-      }
-
-      stage('Site Documentation') {
-        steps {
-          script {
-            runCommand('mvn -B site')
-          }
+    stage('Building image') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+          sh 'docker build -t "$DOCKERHUB_USERNAME/$DOCKER_REPOSITORY:$DOCKER_TAG" .'
         }
       }
     }
 
-    post {
-      always {
-        archiveArtifacts allowEmptyArchive: true, artifacts: '**/target/*.jar,**/target/*.war,**/target/site/**'
+    stage('Upload Image') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+          sh '''
+            set -eu
+            DOCKER_IMAGE="$DOCKERHUB_USERNAME/$DOCKER_REPOSITORY:$DOCKER_TAG"
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push "$DOCKER_IMAGE"
+          '''
+        }
+      }
+    }
+
+    stage('Run containers') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-login', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+          sh '''
+            set -eu
+            DOCKER_IMAGE="$DOCKERHUB_USERNAME/$DOCKER_REPOSITORY:$DOCKER_TAG"
+
+            docker pull "$DOCKER_IMAGE"
+            docker rm -f teedy-8082 teedy-8083 teedy-8084 2>/dev/null || true
+
+            docker run -d --name teedy-8082 -p 8082:8080 "$DOCKER_IMAGE"
+            docker run -d --name teedy-8083 -p 8083:8080 "$DOCKER_IMAGE"
+            docker run -d --name teedy-8084 -p 8084:8080 "$DOCKER_IMAGE"
+
+            docker ps --filter "name=teedy-" --format "table {{.Names}}\\t{{.Image}}\\t{{.Ports}}\\t{{.Status}}"
+          '''
+        }
       }
     }
   }
-
-  void runCommand(String command) {
-    if (isUnix()) {
-      sh command
-    } else {
-      bat "set \"PATH=${env.TESSERACT_HOME};%PATH%\" && ${command}"
-    }
-  }
+}
