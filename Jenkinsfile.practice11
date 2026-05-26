@@ -12,8 +12,25 @@ pipeline {
       steps {
         script {
           runCommand(
-            'minikube status >/dev/null 2>&1 || minikube start',
-            'minikube status || minikube start'
+            '''
+              set -eu
+              if command -v minikube >/dev/null 2>&1; then
+                minikube status >/dev/null 2>&1 || minikube start
+              else
+                echo "minikube command not found in PATH; using current kubectl context."
+                kubectl get nodes
+              fi
+            ''',
+            '''
+              @echo off
+              where minikube >nul 2>nul
+              if %ERRORLEVEL% EQU 0 (
+                minikube status || minikube start
+              ) else (
+                echo minikube command not found in PATH; using current kubectl context.
+                kubectl get nodes
+              )
+            '''
           )
         }
       }
@@ -40,7 +57,11 @@ pipeline {
               kubectl get services teedy-service
               echo ""
               echo "Teedy URL:"
-              minikube service teedy-service --url
+              if command -v minikube >/dev/null 2>&1; then
+                minikube service teedy-service --url
+              else
+                kubectl get service teedy-service
+              fi
             ''',
             '''
               @echo off
@@ -51,7 +72,12 @@ pipeline {
               kubectl get services teedy-service
               echo.
               echo Teedy URL:
-              minikube service teedy-service --url
+              where minikube >nul 2>nul
+              if %ERRORLEVEL% EQU 0 (
+                minikube service teedy-service --url
+              ) else (
+                kubectl get service teedy-service
+              )
             '''
           )
         }

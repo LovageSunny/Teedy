@@ -54,6 +54,8 @@ minikube start
 kubectl get nodes
 ```
 
+If Jenkins cannot find `minikube`, add the folder containing `minikube.exe` to the same `PATH` used to start Jenkins. The Practice 11 Jenkinsfile can still verify an already-running cluster with `kubectl get nodes`.
+
 The Jenkins job should use:
 
 ```text
