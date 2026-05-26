@@ -76,10 +76,12 @@ kubectl apply -f teedy-deploy.yaml
 Manual verification commands:
 
 ```bat
-kubectl get pods -l app=teedy
+kubectl get pods -l app=teedy-app
 kubectl get services teedy-service
 minikube service teedy-service --url
 ```
+
+The current Practice 11 manifest labels the Deployment and Service with `app=teedy-app` so old local test deployments named `teedy` do not receive traffic from `teedy-service`.
 
 If the service is missing:
 

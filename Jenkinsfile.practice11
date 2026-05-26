@@ -34,7 +34,7 @@ pipeline {
             '''
               set -eu
               echo "Pods:"
-              kubectl get pods -l app=teedy
+              kubectl get pods -l app=teedy-app
               echo ""
               echo "Services:"
               kubectl get services teedy-service
@@ -45,7 +45,7 @@ pipeline {
             '''
               @echo off
               echo Pods:
-              kubectl get pods -l app=teedy
+              kubectl get pods -l app=teedy-app
               echo.
               echo Services:
               kubectl get services teedy-service
