@@ -7,6 +7,95 @@
 
 Teedy is an open source, lightweight document management system for individuals and businesses.
 
+# Jenkins CI/CD Practice Notes
+
+## Practice 10: Docker build, push, and run
+
+The root `Dockerfile` and root `Jenkinsfile` are configured for Practice 10.
+
+Before running the Jenkins job, make sure Docker can pull the required base images from the same environment that starts Jenkins:
+
+```bat
+docker pull docker.io/library/maven:3.8.7-eclipse-temurin-11
+docker pull docker.io/library/tomcat:10.1-jre11-temurin
+java -jar jenkins.war --httpPort=8080
+```
+
+The Jenkins job should use:
+
+```text
+Branch: main
+Script Path: Jenkinsfile
+Credentials ID: dockerhub_credentials
+```
+
+After a successful build, verify the three containers:
+
+```bat
+docker ps --filter "name=teedy-"
+```
+
+Expected container names:
+
+```text
+teedy-8082
+teedy-8083
+teedy-8084
+```
+
+## Practice 11: Deploy Teedy to Minikube
+
+Practice 11 uses `Jenkinsfile.practice11` and `teedy-deploy.yaml`.
+
+Prerequisites:
+
+```bat
+minikube start
+kubectl get nodes
+```
+
+The Jenkins job should use:
+
+```text
+Branch: main
+Script Path: Jenkinsfile.practice11
+```
+
+The deployment manifest uses this image:
+
+```text
+lovagesunny/teedy:v1.0
+```
+
+Run the Practice 11 Jenkins job after Practice 10 has pushed the latest image. The job applies:
+
+```bat
+kubectl apply -f teedy-deploy.yaml
+```
+
+Manual verification commands:
+
+```bat
+kubectl get pods -l app=teedy
+kubectl get services teedy-service
+minikube service teedy-service --url
+```
+
+If the service is missing:
+
+```bat
+kubectl apply -f teedy-deploy.yaml
+kubectl get svc -A
+```
+
+If the page shows Tomcat 404, first try:
+
+```text
+<minikube-url>/src/index.html
+```
+
+The project also includes `docs-web/src/main/webapp/index.html`, which redirects `/` to `/src/index.html` after the Docker image has been rebuilt and pushed.
+
 <hr />
 <h2 align="center">
   ✨ <a href="https://github.com/users/jendib/sponsorship">Sponsor this project if you use and appreciate it!</a> ✨

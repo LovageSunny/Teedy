@@ -10,39 +10,60 @@ pipeline {
 
     stage('Start Minikube') {
       steps {
-        sh '''
-          set -eu
-          minikube status >/dev/null 2>&1 || minikube start
-        '''
+        script {
+          runCommand(
+            'minikube status >/dev/null 2>&1 || minikube start',
+            'minikube status || minikube start'
+          )
+        }
       }
     }
 
     stage('Set Image') {
       steps {
-        sh '''
-          set -eu
-          kubectl apply -f teedy-deploy.yaml
-        '''
+        script {
+          runCommand('kubectl apply -f teedy-deploy.yaml')
+        }
       }
     }
 
     stage('Verify') {
       steps {
-        sh '''
-          set -eu
-
-          echo "Pods:"
-          kubectl get pods -l app=teedy
-
-          echo ""
-          echo "Services:"
-          kubectl get services teedy-service
-
-          echo ""
-          echo "Teedy URL:"
-          minikube service teedy-service --url
-        '''
+        script {
+          runCommand(
+            '''
+              set -eu
+              echo "Pods:"
+              kubectl get pods -l app=teedy
+              echo ""
+              echo "Services:"
+              kubectl get services teedy-service
+              echo ""
+              echo "Teedy URL:"
+              minikube service teedy-service --url
+            ''',
+            '''
+              @echo off
+              echo Pods:
+              kubectl get pods -l app=teedy
+              echo.
+              echo Services:
+              kubectl get services teedy-service
+              echo.
+              echo Teedy URL:
+              minikube service teedy-service --url
+            '''
+          )
+        }
       }
     }
+  }
+}
+
+void runCommand(String unixCommand, String windowsCommand = null) {
+  if (isUnix()) {
+    sh unixCommand
+  } else {
+    bat(windowsCommand ?: unixCommand)
   }
 }
