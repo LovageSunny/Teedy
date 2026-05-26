@@ -3,6 +3,7 @@ FROM docker.io/library/maven:3.8.7-eclipse-temurin-11 AS builder
 WORKDIR /build
 
 COPY pom.xml .
+COPY customize-rules.xml .
 COPY docs-core ./docs-core
 COPY docs-web-common ./docs-web-common
 COPY docs-web ./docs-web
