@@ -2,6 +2,7 @@ pipeline {
   agent any
 
   environment {
+    DOCKER_NAMESPACE = 'lovagesunny'
     DOCKER_REPOSITORY = 'teedy'
     DOCKER_TAG = 'v1.0'
   }
@@ -20,8 +21,8 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
           script {
             runCommand(
-              'docker build -t "$DOCKERHUB_USERNAME/$DOCKER_REPOSITORY:$DOCKER_TAG" .',
-              'docker build -t "%DOCKERHUB_USERNAME%/%DOCKER_REPOSITORY%:%DOCKER_TAG%" .'
+              'docker build -t "$DOCKER_NAMESPACE/$DOCKER_REPOSITORY:$DOCKER_TAG" .',
+              'docker build -t "%DOCKER_NAMESPACE%/%DOCKER_REPOSITORY%:%DOCKER_TAG%" .'
             )
           }
         }
@@ -35,13 +36,13 @@ pipeline {
             runCommand(
               '''
                 set -eu
-                DOCKER_IMAGE="$DOCKERHUB_USERNAME/$DOCKER_REPOSITORY:$DOCKER_TAG"
+                DOCKER_IMAGE="$DOCKER_NAMESPACE/$DOCKER_REPOSITORY:$DOCKER_TAG"
                 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 docker push "$DOCKER_IMAGE"
               ''',
               '''
                 @echo off
-                set "DOCKER_IMAGE=%DOCKERHUB_USERNAME%/%DOCKER_REPOSITORY%:%DOCKER_TAG%"
+                set "DOCKER_IMAGE=%DOCKER_NAMESPACE%/%DOCKER_REPOSITORY%:%DOCKER_TAG%"
                 echo %DOCKERHUB_PASSWORD% | docker login -u "%DOCKERHUB_USERNAME%" --password-stdin
                 docker push "%DOCKER_IMAGE%"
               '''
@@ -58,7 +59,7 @@ pipeline {
             runCommand(
               '''
                 set -eu
-                DOCKER_IMAGE="$DOCKERHUB_USERNAME/$DOCKER_REPOSITORY:$DOCKER_TAG"
+                DOCKER_IMAGE="$DOCKER_NAMESPACE/$DOCKER_REPOSITORY:$DOCKER_TAG"
 
                 docker pull "$DOCKER_IMAGE"
                 docker rm -f teedy-8082 teedy-8083 teedy-8084 2>/dev/null || true
@@ -71,7 +72,7 @@ pipeline {
               ''',
               '''
                 @echo off
-                set "DOCKER_IMAGE=%DOCKERHUB_USERNAME%/%DOCKER_REPOSITORY%:%DOCKER_TAG%"
+                set "DOCKER_IMAGE=%DOCKER_NAMESPACE%/%DOCKER_REPOSITORY%:%DOCKER_TAG%"
 
                 docker pull "%DOCKER_IMAGE%"
                 docker rm -f teedy-8082 teedy-8083 teedy-8084 2>NUL || ver >NUL
