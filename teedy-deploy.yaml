@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: teedy
-          image: your-dockerhub-id/teedy:v1.0
+          image: lovagesunny/teedy:v1.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
 ---

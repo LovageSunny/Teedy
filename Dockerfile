@@ -18,7 +18,7 @@ COPY docs-web ./docs-web
 
 RUN --mount=type=cache,target=/root/.m2 mvn -B clean install -DskipTests
 
-FROM docker.io/library/tomcat:9.0-jre11-temurin
+FROM docker.io/library/tomcat:10.1-jre11-temurin
 
 RUN rm -rf /usr/local/tomcat/webapps/*
 
