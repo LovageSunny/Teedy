@@ -1,0 +1,48 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Declarative: Checkout SCM') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Start Minikube') {
+      steps {
+        sh '''
+          set -eu
+          minikube status >/dev/null 2>&1 || minikube start
+        '''
+      }
+    }
+
+    stage('Set Image') {
+      steps {
+        sh '''
+          set -eu
+          kubectl apply -f teedy-deploy.yaml
+        '''
+      }
+    }
+
+    stage('Verify') {
+      steps {
+        sh '''
+          set -eu
+
+          echo "Pods:"
+          kubectl get pods -l app=teedy
+
+          echo ""
+          echo "Services:"
+          kubectl get services teedy-service
+
+          echo ""
+          echo "Teedy URL:"
+          minikube service teedy-service --url
+        '''
+      }
+    }
+  }
+}

@@ -7,6 +7,8 @@ pipeline {
 
     environment {
       MAVEN_OPTS = '-Xmx1024m'
+      TESSDATA_PREFIX = 'C:\\Users\\19236\\tessdata'
+      PATH+TESSERACT = 'C:\\Program Files\\Tesseract-OCR'
     }
 
     stages {
